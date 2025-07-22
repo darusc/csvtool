@@ -1,0 +1,11 @@
+{
+    auto_https disable_redirects
+}
+
+{$SERVER_NAME} {
+    root * /srv/app/public
+    php_fastcgi unix//var/run/php/fpm.sock
+    encode zstd gzip
+    file_server
+    tls internal
+}

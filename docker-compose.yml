@@ -1,0 +1,66 @@
+services:
+  cli:
+    build:
+      context: .
+      target: base
+      dockerfile: ./docker/Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    image: development/cli
+    container_name: development_cli
+    volumes:
+      - ./:/srv/app
+    profiles: ["background"]
+
+  webapp:
+    build:
+      context: .
+      target: php-fpm
+      dockerfile: ./docker/Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    image: development/webapp
+    container_name: development_webapp
+    networks:
+      - development
+    restart: unless-stopped
+    volumes:
+      - php_socket:/var/run/php
+      - ./:/srv/app
+
+  proxy:
+    build:
+      context: .
+      target: caddy
+      dockerfile: ./docker/Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    image: development/proxy
+    container_name: development_proxy
+    depends_on:
+      - webapp
+    environment:
+      SERVER_NAME: dev.localhost
+    networks:
+      - development
+    restart: unless-stopped
+    volumes:
+      - php_socket:/var/run/php
+      - ./public:/srv/app/public
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+      - target: 443
+        published: 443
+        protocol: tcp
+
+networks:
+  development:
+    driver: bridge
+
+volumes:
+  php_socket:
