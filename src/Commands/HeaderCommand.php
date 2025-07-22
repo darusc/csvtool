@@ -9,7 +9,7 @@ final class HeaderCommand extends Command
         return [
             'name' => 'header',
             'description' => 'Prepend CSV file with a header row',
-            'options' => ['file', 'header']
+            'args' => ['file', 'header', '--new::']
         ];
     }
 

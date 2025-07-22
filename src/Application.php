@@ -11,7 +11,7 @@ class Application
     /**
      * Maps each action to the corresponding command implementation
      */
-    public static $actionMap = [
+    public static array $actionMap = [
         "header" => HeaderCommand::class,
     ];
 
@@ -32,42 +32,48 @@ class Application
             throw new InvalidArgumentException("Unknown action: $action");
         }
 
-        // Get the needed options for the current action
-        $options = static::$actionMap[$action]::getDefinition()['options'];
-
+        // Get the needed args for the current action
+        $neededArgs = static::$actionMap[$action]::getDefinition()['args'];
         // Parse argv to get given options
-        $parsedOptions = static::parseOptions($argv);
+        $parsedArgs = static::parseOptions($argv, $neededArgs);
 
-        foreach ($options as $option) {
-            if (!isset($parsedOptions[$option])) {
-                throw new InvalidArgumentException("Missing option '$option'");
-            }
-        }
+        var_dump($parsedArgs);
 
-        return new static($action, $parsedOptions);
+        return new static($action, $parsedArgs);
     }
 
     /**
      * Parse argv and return an array containing all options and their values
      * [$option => $value]
      */
-    private static function parseOptions(array $argv): array
+    private static function parseOptions(array $argv, array $expected): array
     {
-        $options = [];
-        foreach ($argv as $arg) {
-            if (str_starts_with($arg, '--')) {
-                $components = explode('=', substr($arg, 2));
-                $key = $components[0];
-                $value = $components[1] ?? true;
-                $options[$key] = $value;
+        $parsedArgs = [];
+
+        // The arguments we are interested in start at index 2
+        foreach (array_slice($argv, 2) as $index => $arg) {
+            // If the current arg doesn't start with -- it is a positional argument => add it at current index
+            if (!str_starts_with($arg, '--')) {
+                $parsedArgs[$expected[$index]] = $arg;
+            } else {
+                // If the current arg is optional but the expected arg is not then we miss some arguments
+                if (!str_starts_with($expected[$index], '--')) {
+                    throw new InvalidArgumentException("Missing option '$expected[$index]'");
+                } else {
+                    // Otherwise, get the value of the optional arg and add it to the result
+                    $components = explode('=', $arg);
+                    $key = trim($components[0], '-:');
+                    $value = $components[1] ?? true;
+                    $parsedArgs[$key] = $value;
+                }
             }
         }
-        return $options;
+        return $parsedArgs;
     }
 
     private function __construct(
         private readonly string $action,
-        private readonly array  $options
+        private readonly array  $args
     )
     {
 
@@ -78,7 +84,7 @@ class Application
      */
     public function run(): void
     {
-        $command = Command::create(static::$actionMap[$this->action], $this->options);
+        $command = Command::create(static::$actionMap[$this->action], $this->args);
         $command->run();
     }
 }
