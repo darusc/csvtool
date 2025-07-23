@@ -2,10 +2,12 @@
     "name": "darusc/csvtool",
     "description": "PHP csv tool",
     "type": "project",
+    "require": {
+        "nesbot/carbon": "^3.10"
+    },
     "autoload": {
         "psr-4": {
             "Csvtool\\": "src/"
         }
-    },
-    "require": {}
+    }
 }
