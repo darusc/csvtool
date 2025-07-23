@@ -24,10 +24,10 @@ class StreamReaderService implements CSVReaderInterface
             // Check if the file contains a header
             // If it contains numeric items it is a row entry and not the header
             // TODO: improve
-            $header = $this->splFileObject->current();
-            foreach ($header as $item) {
+            $this->header = $this->splFileObject->current();
+            foreach ($this->header as $item) {
                 if(is_numeric($item)) {
-                    $header = null;
+                    $this->header = null;
                     break;
                 }
             }
@@ -44,8 +44,18 @@ class StreamReaderService implements CSVReaderInterface
         return $this->header !== null;
     }
 
+    public function getHeader(): ?array
+    {
+        return $this->header;
+    }
+
     public function read(): Generator
     {
+        // Skip the header row if it exists
+        if($this->hasHeader()) {
+            $this->splFileObject->next();
+        }
+
         while (!$this->splFileObject->eof()) {
             $data = $this->splFileObject->current();
 

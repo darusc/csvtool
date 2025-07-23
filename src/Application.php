@@ -4,6 +4,7 @@ namespace Csvtool;
 
 use Csvtool\Commands\Command;
 use Csvtool\Commands\Impl\HeaderCommand;
+use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
 use Csvtool\Services\FIleWriterService;
@@ -17,6 +18,7 @@ class Application
      */
     public static array $actionMap = [
         "header" => HeaderCommand::class,
+        "index" => IndexCommand::class,
     ];
 
     /**

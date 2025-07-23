@@ -5,5 +5,10 @@ namespace Csvtool\Services;
 interface CSVWriterInterface
 {
     public function open(string $filename, ?array $header = null): bool;
-    public function write(array $row);
+
+    /**
+     * @param array $row Needs to be an array of values, without explicit keys
+     * @return void
+     */
+    public function write(array $row): void;
 }
