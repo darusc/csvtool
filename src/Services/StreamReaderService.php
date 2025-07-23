@@ -49,6 +49,10 @@ class StreamReaderService implements CSVReaderInterface
         while (!$this->splFileObject->eof()) {
             $data = $this->splFileObject->current();
 
+            if($data == [null] || $data === false) {
+                break;
+            }
+
             // If the file has a header map the read data
             // so the yielded row has the header information
             // otherwise yield directly the index based row
