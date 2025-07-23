@@ -7,6 +7,7 @@ use Csvtool\Commands\Impl\ColumnRemovalCommand;
 use Csvtool\Commands\Impl\ColumnReorderCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
+use Csvtool\Commands\Impl\ColumnTruncateCommand;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
 use Csvtool\Services\FIleWriterService;
@@ -22,7 +23,8 @@ class Application
         "header" => HeaderCommand::class,
         "index" => IndexCommand::class,
         "reorder" => ColumnReorderCommand::class,
-        "rmcol" => ColumnRemovalCommand::class
+        "rmcol" => ColumnRemovalCommand::class,
+        "trunc" => ColumnTruncateCommand::class,
     ];
 
     /**
