@@ -2,9 +2,7 @@
 
 namespace Csvtool\Services;
 
-use Csvtool\Exceptions\FileNotFoundException;
-use Csvtool\Exceptions\FilePermissionException;
-use Csvtool\Validators\FileValidator;
+use Exception;
 use SplFileObject;
 
 class FIleWriterService implements CSVWriterInterface
@@ -14,18 +12,16 @@ class FIleWriterService implements CSVWriterInterface
     public function open(string $filename, ?array $header = null): bool
     {
         try {
-            FileValidator::validate($filename);
-
             $this->splFileObject = new SplFileObject($filename, 'w');
             $this->splFileObject->setCsvControl(",", "\"", "\\");
 
             // Write the header if present
-            if($header !== null) {
+            if ($header !== null) {
                 $this->splFileObject->fputcsv($header);
             }
 
             return true;
-        } catch (FileNotFoundException|FilePermissionException $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return false;
         }
