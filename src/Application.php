@@ -3,6 +3,7 @@
 namespace Csvtool;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\Impl\ColumnRemovalCommand;
 use Csvtool\Commands\Impl\ColumnReorderCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
@@ -20,7 +21,8 @@ class Application
     public static array $actionMap = [
         "header" => HeaderCommand::class,
         "index" => IndexCommand::class,
-        "reorder" => ColumnReorderCommand::class
+        "reorder" => ColumnReorderCommand::class,
+        "rmcol" => ColumnRemovalCommand::class
     ];
 
     /**
