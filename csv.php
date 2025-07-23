@@ -10,7 +10,7 @@ if ($argv[1] == '--help') {
     try {
         $app = Application::create($argc, $argv);
         $app->run();
-    } catch (InvalidArgumentException $e) {
+    } catch (Exception $e) {
         print "Error: " . $e->getMessage() . PHP_EOL;
         print "Usage: php csv.php <action> [options]" . PHP_EOL;
     }

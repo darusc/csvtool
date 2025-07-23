@@ -3,7 +3,11 @@
 namespace Csvtool;
 
 use Csvtool\Commands\Command;
-use Csvtool\Commands\HeaderCommand;
+use Csvtool\Commands\Impl\HeaderCommand;
+use Csvtool\Exceptions\InvalidActionException;
+use Csvtool\Exceptions\MissingArgumentException;
+use Csvtool\Services\FIleWriterService;
+use Csvtool\Services\StreamReaderService;
 use InvalidArgumentException;
 
 class Application
@@ -18,8 +22,10 @@ class Application
     /**
      * Attempts to create a new instance of Application.
      * Parses argv to get the action and options to execute.
-     * If successful returns the newly created instance,
-     * otherwise throws InvalidArgumentException
+     * If successful returns the newly created instance
+     *
+     * @throws InvalidActionException
+     * @throws MissingArgumentException
      */
     public static function create(int $argc, array $argv): static
     {
@@ -29,7 +35,7 @@ class Application
 
         $action = $argv[1];
         if (!isset(self::$actionMap[$action])) {
-            throw new InvalidArgumentException("Unknown action: $action");
+            throw new InvalidActionException($action);
         }
 
         // Get the needed args for the current action
@@ -37,14 +43,13 @@ class Application
         // Parse argv to get given options
         $parsedArgs = static::parseOptions($argv, $neededArgs);
 
-        var_dump($parsedArgs);
-
         return new static($action, $parsedArgs);
     }
 
     /**
      * Parse argv and return an array containing all options and their values
      * [$option => $value]
+     * @throws MissingArgumentException
      */
     private static function parseOptions(array $argv, array $expected): array
     {
@@ -58,7 +63,7 @@ class Application
             } else {
                 // If the current arg is optional but the expected arg is not then we miss some arguments
                 if (!str_starts_with($expected[$index], '--')) {
-                    throw new InvalidArgumentException("Missing option '$expected[$index]'");
+                    throw new MissingArgumentException($expected[$index]);
                 } else {
                     // Otherwise, get the value of the optional arg and add it to the result
                     $components = explode('=', $arg);
@@ -68,6 +73,13 @@ class Application
                 }
             }
         }
+
+        // Missing argument check if not enough arguments in argv
+        $c = count($parsedArgs);
+        if ($c < count($expected) && !str_starts_with($expected[$c], '--')) {
+            throw new MissingArgumentException($expected[$c]);
+        }
+
         return $parsedArgs;
     }
 
@@ -84,7 +96,12 @@ class Application
      */
     public function run(): void
     {
-        $command = Command::create(static::$actionMap[$this->action], $this->args);
+        $command = Command::create(
+            static::$actionMap[$this->action],
+            $this->args,
+            new StreamReaderService(),
+            new FIleWriterService()
+        );
         $command->run();
     }
 }
