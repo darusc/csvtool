@@ -11,6 +11,8 @@ use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
+use Csvtool\Commands\Impl\SignCommand;
+use Csvtool\Commands\Impl\VerifyCommand;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
 use Csvtool\Services\FIleWriterService;
@@ -31,6 +33,8 @@ class Application
         "refdate" => DateReformatCommand::class,
         "encrypt" => EncryptCommand::class,
         "decrypt" => DecryptCommand::class,
+        "sign" => SignCommand::class,
+        "verify" => VerifyCommand::class,
     ];
 
     /**

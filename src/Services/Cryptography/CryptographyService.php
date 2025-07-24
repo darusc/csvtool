@@ -21,16 +21,8 @@ class CryptographyService
      */
     public static function forEncryption(string $publicKeyPath): static
     {
-        if (!file_exists($publicKeyPath) || !is_readable($publicKeyPath)) {
-            throw new InvalidFileException($publicKeyPath);
-        }
-
-        $key = openssl_pkey_get_public(file_get_contents($publicKeyPath));
-        if ($key !== false) {
-            return new static(null, $key);
-        } else {
-            throw new InvalidKeyException();
-        }
+        $key = Util::loadPublicKey($publicKeyPath);
+        return new static(null, $key);
     }
 
     /**
@@ -41,16 +33,8 @@ class CryptographyService
      */
     public static function forDecryption(string $privateKeyPath): ?static
     {
-        if (!file_exists($privateKeyPath) || !is_readable($privateKeyPath)) {
-            throw new InvalidFileException($privateKeyPath);
-        }
-
-        $key = openssl_pkey_get_private(file_get_contents($privateKeyPath));
-        if ($key !== false) {
-            return new static($key, null);
-        } else {
-            throw new InvalidKeyException();
-        }
+        $key = Util::loadPrivateKey($privateKeyPath);
+        return new static($key, null);
     }
 
     private function __construct(
