@@ -6,6 +6,8 @@ use Csvtool\Commands\Command;
 use Csvtool\Commands\Impl\ColumnRemovalCommand;
 use Csvtool\Commands\Impl\ColumnReorderCommand;
 use Csvtool\Commands\Impl\DateReformatCommand;
+use Csvtool\Commands\Impl\DecryptCommand;
+use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
@@ -27,6 +29,8 @@ class Application
         "rmcol" => ColumnRemovalCommand::class,
         "trunc" => ColumnTruncateCommand::class,
         "refdate" => DateReformatCommand::class,
+        "encrypt" => EncryptCommand::class,
+        "decrypt" => DecryptCommand::class,
     ];
 
     /**
