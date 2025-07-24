@@ -6,9 +6,13 @@ use Csvtool\Commands\Command;
 use Csvtool\Commands\Impl\ColumnRemovalCommand;
 use Csvtool\Commands\Impl\ColumnReorderCommand;
 use Csvtool\Commands\Impl\DateReformatCommand;
+use Csvtool\Commands\Impl\DecryptCommand;
+use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
+use Csvtool\Commands\Impl\SignCommand;
+use Csvtool\Commands\Impl\VerifyCommand;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
 use Csvtool\Services\FIleWriterService;
@@ -27,6 +31,10 @@ class Application
         "rmcol" => ColumnRemovalCommand::class,
         "trunc" => ColumnTruncateCommand::class,
         "refdate" => DateReformatCommand::class,
+        "encrypt" => EncryptCommand::class,
+        "decrypt" => DecryptCommand::class,
+        "sign" => SignCommand::class,
+        "verify" => VerifyCommand::class,
     ];
 
     /**
