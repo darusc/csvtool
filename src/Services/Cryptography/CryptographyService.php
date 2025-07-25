@@ -2,8 +2,9 @@
 
 namespace Csvtool\Services\Cryptography;
 
+use Csvtool\Exceptions\FileNotFoundException;
+use Csvtool\Exceptions\FilePermissionException;
 use Csvtool\Exceptions\InvalidActionException;
-use Csvtool\Exceptions\InvalidFileException;
 use Csvtool\Exceptions\InvalidKeyException;
 use OpenSSLAsymmetricKey;
 
@@ -16,8 +17,9 @@ class CryptographyService
     /**
      * @param string $publicKeyPath The path to a file containing the public key used for encryption
      * @return static
-     * @throws InvalidFileException
      * @throws InvalidKeyException
+     * @throws FileNotFoundException
+     * @throws FilePermissionException
      */
     public static function forEncryption(string $publicKeyPath): static
     {
@@ -28,8 +30,9 @@ class CryptographyService
     /**
      * @param string $privateKeyPath The path to a file containing the private key used for decryption
      * @return static|null
-     * @throws InvalidFileException
      * @throws InvalidKeyException
+     * @throws FileNotFoundException
+     * @throws FilePermissionException
      */
     public static function forDecryption(string $privateKeyPath): ?static
     {

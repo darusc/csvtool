@@ -2,21 +2,22 @@
 
 namespace Csvtool\Services\Cryptography;
 
-use Csvtool\Exceptions\InvalidFileException;
+use Csvtool\Exceptions\FileNotFoundException;
+use Csvtool\Exceptions\FilePermissionException;
 use Csvtool\Exceptions\InvalidKeyException;
+use Csvtool\Validators\FileValidator;
 use OpenSSLAsymmetricKey;
 
 class Util
 {
     /**
-     * @throws InvalidFileException
+     * @throws FileNotFoundException
+     * @throws FilePermissionException
      * @throws InvalidKeyException
      */
     public static function loadPublicKey(string $publicKeyPath): OpenSSLAsymmetricKey
     {
-        if (!file_exists($publicKeyPath) || !is_readable($publicKeyPath)) {
-            throw new InvalidFileException($publicKeyPath);
-        }
+        FileValidator::validate($publicKeyPath);
 
         $key = openssl_pkey_get_public(file_get_contents($publicKeyPath));
         if($key === false){
@@ -27,14 +28,13 @@ class Util
     }
 
     /**
-     * @throws InvalidFileException
+     * @throws FileNotFoundException
+     * @throws FilePermissionException
      * @throws InvalidKeyException
      */
     public static function loadPrivateKey(string $privateKeyPath): OpenSSLAsymmetricKey
     {
-        if (!file_exists($privateKeyPath) || !is_readable($privateKeyPath)) {
-            throw new InvalidFileException($privateKeyPath);
-        }
+        FileValidator::validate($privateKeyPath);
 
         $key = openssl_pkey_get_private(file_get_contents($privateKeyPath));
         if($key === false){
