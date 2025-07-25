@@ -4,8 +4,10 @@ namespace Csvtool\Commands\Impl;
 
 use Carbon\Carbon;
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
 use Csvtool\Validators\DateValidator;
 use DateTime;
+use Exception;
 
 class DateReformatCommand extends Command
 {
@@ -21,31 +23,36 @@ class DateReformatCommand extends Command
 
     public function run(): void
     {
-        if($this->reader->open($this->args['file'])) {
-            if($this->writer->open($this->args['outfile'])) {
-                if($this->reader->hasHeader()) {
-                    $this->writer->write($this->reader->getHeader());
-                }
+        try {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-                $format = $this->args['format'];
-                if(!DateValidator::isValidFormat($format)) {
-                    echo "Specified format '$format' is not a valid date format." . PHP_EOL;
-                    return;
-                }
-
-                foreach ($this->reader->read() as $row) {
-                    $this->writer->write(
-                        array_map(function ($value) use ($format) {
-                            // If the current value is a valid datetime reformat it with the new specified format
-                            if(DateValidator::isValidDateTime($value)) {
-                                return Carbon::parse($value)->format($format);
-                            } else {
-                                return $value;
-                            }
-                        }, $row)
-                    );
-                }
+            if ($input->hasHeader()) {
+                $output->write($input->getHeader());
             }
+
+            $format = $this->args['format'];
+            if (!DateValidator::isValidFormat($format)) {
+                echo "Specified format '$format' is not a valid date format." . PHP_EOL;
+                return;
+            }
+
+            foreach ($input->read() as $row) {
+                $output->write(
+                    array_map(function ($value) use ($format) {
+                        // If the current value is a valid datetime reformat it with the new specified format
+                        if (DateValidator::isValidDateTime($value)) {
+                            return Carbon::parse($value)->format($format);
+                        } else {
+                            return $value;
+                        }
+                    }, $row)
+                );
+            }
+
+        } catch (Exception $ex) {
+            $this->fileService->closeAll();
+            echo $ex->getMessage() . PHP_EOL;
         }
     }
 }

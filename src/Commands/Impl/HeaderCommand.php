@@ -3,6 +3,10 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Exceptions\FileNotFoundException;
+use Csvtool\Exceptions\FilePermissionException;
+use Csvtool\Models\CSVFile;
+use Exception;
 
 final class HeaderCommand extends Command
 {
@@ -17,18 +21,24 @@ final class HeaderCommand extends Command
 
     public function run(): void
     {
-        // Open the input file
-        if($this->reader->open($this->args['file'])) {
+        try {
+            $header = explode(',', $this->args['header']);
+
+            // Open the input file
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
 
             // Open the output file and write the header
-            $header = explode(',', $this->args['header']);
-            if($this->writer->open($this->args['outfile'], $header)) {
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-                // Copy the content from the input file to the output file
-                foreach ($this->reader->read() as $row) {
-                    $this->writer->write($row);
-                }
+            // Write the header and copy the contents
+            $output->setHeader($header);
+            foreach ($input->read() as $row) {
+                $output->write($row);
             }
+
+        } catch (Exception $ex) {
+            $this->fileService->closeAll();
+            echo $ex->getMessage();
         }
     }
 }

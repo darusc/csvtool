@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\SignatureService;
 use Exception;
 
@@ -23,28 +24,29 @@ class SignCommand extends Command
         try {
             $signatureService = SignatureService::forSigning($this->args['privatekey']);
 
-            if ($this->reader->open($this->args['file'])) {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-                $header = $this->reader->getHeader();
-                $column = $this->args['column'];
-                if (!in_array($column, $header ?? [])) {
-                    echo "Column $column not found" . PHP_EOL;
-                    return;
-                }
-
-                // Append a new column to hold the signature
-                $header[] = $column . '_signature';
-
-                if ($this->writer->open($this->args['outfile'], $header)) {
-                    foreach ($this->reader->read() as $row) {
-                        // Sign the corresponding row value and append it under the new column
-                        $signature = $signatureService->sign($row[$column]);
-                        $row[$column . '_signature'] = $signature;
-                        $this->writer->write($row);
-                    }
-                }
+            $header = $input->getHeader();
+            $column = $this->args['column'];
+            if (!in_array($column, $header ?? [])) {
+                echo "Column $column not found" . PHP_EOL;
+                return;
             }
+
+            // Append a new column to hold the signature
+            $header[] = $column . '_signature';
+            $output->setHeader($header);
+
+            foreach ($input->read() as $row) {
+                // Sign the corresponding row value and append it under the new column
+                $signature = $signatureService->sign($row[$column]);
+                $row[$column . '_signature'] = $signature;
+                $output->write($row);
+            }
+
         } catch (Exception $e) {
+            $this->fileService->closeAll();
             echo $e->getMessage() . PHP_EOL;
         }
     }

@@ -15,6 +15,7 @@ use Csvtool\Commands\Impl\SignCommand;
 use Csvtool\Commands\Impl\VerifyCommand;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
+use Csvtool\Services\CSVFileService;
 use Csvtool\Services\FIleWriterService;
 use Csvtool\Services\StreamReaderService;
 use InvalidArgumentException;
@@ -117,8 +118,7 @@ class Application
         $command = Command::create(
             static::$actionMap[$this->action],
             $this->args,
-            new StreamReaderService(),
-            new FIleWriterService()
+            new CSVFileService()
         );
         $command->run();
     }

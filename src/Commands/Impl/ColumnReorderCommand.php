@@ -3,6 +3,8 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
+use Exception;
 
 class ColumnReorderCommand extends Command
 {
@@ -18,15 +20,16 @@ class ColumnReorderCommand extends Command
 
     public function run(): void
     {
-        // Open the input file
-        if($this->reader->open($this->args['file'])) {
+        try {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-            if(!$this->reader->hasHeader()) {
+            if(!$input->hasHeader()) {
                 echo 'Input file ' . $this->args['file'] . " doesn't have a header" . PHP_EOL;
                 return;
             }
 
-            $oldHeader = $this->reader->getHeader();
+            $oldHeader = $input->getHeader();
             $sequence = explode(',', $this->args['sequence']);
 
             // Create a new array containing the existing header columns in the required order
@@ -45,20 +48,20 @@ class ColumnReorderCommand extends Command
                 }
             }
 
-            if($this->writer->open($this->args['outfile'])) {
-                // Write the new header
-                $this->writer->write($ordered);
-
-                foreach ($this->reader->read() as $row) {
-                    // Create a new array that has the values in the new required order by mapping the
-                    // ordered array values to the row data. (The keys of the $row array are the column names)
-                    $this->writer->write(
-                        array_map(function ($item) use ($row) {
-                            return $row[$item];
-                        }, $ordered)
-                    );
-                }
+            $output->setHeader($ordered);
+            foreach ($input->read() as $row) {
+                // Create a new array that has the values in the new required order by mapping the
+                // ordered array values to the row data. (The keys of the $row array are the column names)
+                $output->write(
+                    array_map(function ($item) use ($row) {
+                        return $row[$item];
+                    }, $ordered)
+                );
             }
+
+        } catch (Exception $ex) {
+            $this->fileService->closeAll();
+            echo $ex->getMessage() . PHP_EOL;
         }
     }
 }

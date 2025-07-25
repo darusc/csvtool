@@ -23,32 +23,31 @@ class EncryptCommand extends Command
         try {
             $encryptionService = CryptographyService::forEncryption($this->args['publickey']);
 
-            if ($this->reader->open($this->args['file'])) {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-                $header = $this->reader->getHeader();
-                if (!in_array($this->args['column'], $header ?? [])) {
-                    echo "Column {$this->args['column']} not found" . PHP_EOL;
-                    return;
-                }
-
-                if ($this->writer->open($this->args['outfile'])) {
-
-                    $this->writer->write($this->reader->getHeader());
-
-                    foreach ($this->reader->read() as $row) {
-                        $this->writer->write(
-                            array_map(function ($key) use ($encryptionService, $row) {
-                                if ($key == $this->args['column']) {
-                                    return $encryptionService->encrypt($row[$key]);
-                                } else {
-                                    return $row[$key];
-                                }
-                            }, array_keys($row))
-                        );
-                    }
-                }
+            $header = $this->reader->getHeader();
+            if (!in_array($this->args['column'], $header ?? [])) {
+                echo "Column {$this->args['column']} not found" . PHP_EOL;
+                return;
             }
+
+            $output->setHeader($input->getHeader());
+
+            foreach ($input->read() as $row) {
+                $output->write(
+                    array_map(function ($key) use ($encryptionService, $row) {
+                        if ($key == $this->args['column']) {
+                            return $encryptionService->encrypt($row[$key]);
+                        } else {
+                            return $row[$key];
+                        }
+                    }, array_keys($row))
+                );
+            }
+
         } catch (Exception $e) {
+            $this->fileService->closeAll();
             echo $e->getMessage() . PHP_EOL;
         }
     }
