@@ -13,6 +13,7 @@ use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
 use Csvtool\Commands\Impl\JoinFilesCommand;
 use Csvtool\Commands\Impl\MergeFilesCommand;
+use Csvtool\Commands\Impl\SelectCommand;
 use Csvtool\Commands\Impl\SignCommand;
 use Csvtool\Commands\Impl\VerifyCommand;
 use Csvtool\Exceptions\InvalidActionException;
@@ -40,6 +41,7 @@ class Application
         "sign" => SignCommand::class,
         "verify" => VerifyCommand::class,
         "join" => JoinFilesCommand::class,
+        "select" => SelectCommand::class,
     ];
 
     /**
@@ -89,9 +91,11 @@ class Application
                     throw new MissingArgumentException($expected[$index]);
                 } else {
                     // Otherwise, get the value of the optional arg and add it to the result
-                    $components = explode('=', $arg);
-                    $key = trim($components[0], '-:');
-                    $value = $components[1] ?? true;
+                    // Find position of first = instead of using explode so the argument
+                    // can also contain =
+                    $pos = strpos($arg, '=');
+                    $key = trim(substr($arg, 0, $pos ), '-:');
+                    $value = substr($arg, $pos + 1) ?? true;
                     $parsedArgs[$key] = $value;
                 }
             }
