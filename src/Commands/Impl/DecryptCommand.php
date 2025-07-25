@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\CryptographyService;
 use Csvtool\Services\Cryptography\DecryptionService;
 use Exception;
@@ -23,32 +24,31 @@ class DecryptCommand extends Command
         try {
             $decryptionService = CryptographyService::forDecryption($this->args['privatekey']);
 
-            if ($this->reader->open($this->args['file'])) {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-                $header = $this->reader->getHeader();
-                if (!in_array($this->args['column'], $header ?? [])) {
-                    echo "Column {$this->args['column']} not found" . PHP_EOL;
-                    return;
-                }
-
-                if ($this->writer->open($this->args['outfile'])) {
-
-                    $this->writer->write($this->reader->getHeader());
-
-                    foreach ($this->reader->read() as $row) {
-                        $this->writer->write(
-                            array_map(function ($key) use ($decryptionService, $row) {
-                                if ($key == $this->args['column']) {
-                                    return $decryptionService->decrypt($row[$key]);
-                                } else {
-                                    return $row[$key];
-                                }
-                            }, array_keys($row))
-                        );
-                    }
-                }
+            $header = $this->reader->getHeader();
+            if (!in_array($this->args['column'], $header ?? [])) {
+                echo "Column {$this->args['column']} not found" . PHP_EOL;
+                return;
             }
+
+            $output->setHeader($input->getHeader());
+
+            foreach ($input->read() as $row) {
+                $output->write(
+                    array_map(function ($key) use ($decryptionService, $row) {
+                        if ($key == $this->args['column']) {
+                            return $decryptionService->decrypt($row[$key]);
+                        } else {
+                            return $row[$key];
+                        }
+                    }, array_keys($row))
+                );
+            }
+
         } catch (Exception $e) {
+            $this->fileService->closeAll();
             echo $e->getMessage() . PHP_EOL;
         }
     }

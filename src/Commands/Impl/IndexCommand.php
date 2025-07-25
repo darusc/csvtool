@@ -3,6 +3,8 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
+use Exception;
 
 class IndexCommand extends Command
 {
@@ -17,24 +19,21 @@ class IndexCommand extends Command
 
     public function run(): void
     {
-        if ($this->reader->open($this->args['file'])) {
-            if ($this->writer->open($this->args['outfile'])) {
+        try {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-                if($this->reader->hasHeader()) {
-                    // Get the original header of the file and
-                    // add the new index column at the beginning
-                    $header = $this->reader->getHeader();
-                    $this->writer->write(['id', ...$header]);
-                } else {
-                    // Otherwise add just the index column header
-                    $this->writer->write(['id']);
-                }
+            $header = $input->getHeader();
+            $output->setHeader(['id', ...($header ?? [])]);
 
-                $id = 1;
-                foreach ($this->reader->read() as $row) {
-                    $this->writer->write([$id++, ...$row]);
-                }
+            $id = 1;
+            foreach ($input->read() as $row) {
+                $output->write([$id++, ...$row]);
             }
+
+        } catch (Exception $ex) {
+            $this->fileService->closeAll();
+            echo $ex->getMessage();
         }
     }
 }

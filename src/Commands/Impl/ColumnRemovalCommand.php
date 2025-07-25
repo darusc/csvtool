@@ -3,6 +3,8 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
+use Exception;
 
 class ColumnRemovalCommand extends Command
 {
@@ -18,38 +20,39 @@ class ColumnRemovalCommand extends Command
 
     public function run(): void
     {
-        if($this->reader->open($this->args['file'])) {
+        try {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
+            $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-            if(!$this->reader->hasHeader()) {
+            if (!$input->hasHeader()) {
                 echo 'Input file ' . $this->args['file'] . " doesn't have a header" . PHP_EOL;
                 return;
             }
 
-            $header = $this->reader->getHeader();
-
+            $header = $input->getHeader();
             // Check what option was given and delete the column accordingly
-            if(array_key_exists('index', $this->args)) {
+            if (array_key_exists('index', $this->args)) {
                 $index = (int)$this->args['index'];
                 unset($header[$index]);
             }
-            if(array_key_exists('name', $this->args)) {
+            if (array_key_exists('name', $this->args)) {
                 $name = $this->args['name'];
                 $header = array_filter($header, fn($item) => $item !== $name);
             }
 
-            if($this->writer->open($this->args['outfile'])) {
-                // Write the new header
-                $this->writer->write($header);
-
-                foreach ($this->reader->read() as $row) {
-                    // Write only the items whose keys are in updated header (after column removal)
-                    $this->writer->write(
-                        array_filter($row, function($value, $key) use ($header) {
-                            return in_array($key, $header);
-                        }, ARRAY_FILTER_USE_BOTH)
-                    );
-                }
+            $output->setHeader($header);
+            foreach ($input->read() as $row) {
+                // Filter the row to remove the value corresponding to the deleted column
+                $output->write(
+                    array_filter($row, function ($value, $key) use ($header) {
+                        return in_array($key, $header);
+                    }, ARRAY_FILTER_USE_BOTH)
+                );
             }
+
+        } catch (Exception $ex) {
+            $this->fileService->closeAll();
+            echo $ex->getMessage();
         }
     }
 }

@@ -11,10 +11,13 @@ use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
+use Csvtool\Commands\Impl\JoinFilesCommand;
+use Csvtool\Commands\Impl\MergeFilesCommand;
 use Csvtool\Commands\Impl\SignCommand;
 use Csvtool\Commands\Impl\VerifyCommand;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
+use Csvtool\Services\CSVFileService;
 use Csvtool\Services\FIleWriterService;
 use Csvtool\Services\StreamReaderService;
 use InvalidArgumentException;
@@ -31,10 +34,12 @@ class Application
         "rmcol" => ColumnRemovalCommand::class,
         "trunc" => ColumnTruncateCommand::class,
         "refdate" => DateReformatCommand::class,
+        "merge" => MergeFilesCommand::class,
         "encrypt" => EncryptCommand::class,
         "decrypt" => DecryptCommand::class,
         "sign" => SignCommand::class,
         "verify" => VerifyCommand::class,
+        "join" => JoinFilesCommand::class,
     ];
 
     /**
@@ -117,8 +122,7 @@ class Application
         $command = Command::create(
             static::$actionMap[$this->action],
             $this->args,
-            new StreamReaderService(),
-            new FIleWriterService()
+            new CSVFileService()
         );
         $command->run();
     }

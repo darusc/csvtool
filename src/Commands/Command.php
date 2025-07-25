@@ -2,20 +2,18 @@
 
 namespace Csvtool\Commands;
 
-use Csvtool\Services\CSVReaderInterface;
-use Csvtool\Services\CSVWriterInterface;
+use Csvtool\Services\CSVFileService;
 
 abstract class Command implements CommandInterface
 {
-    public static function create(string $name, array $args, CSVReaderInterface $reader, CSVWriterInterface $writer): static
+    public static function create(string $name, array $args, CSVFileService $fileService): static
     {
-        return new $name($args, $reader, $writer);
+        return new $name($args, $fileService);
     }
 
     protected function __construct(
-        protected readonly array              $args,
-        protected readonly CSVReaderInterface $reader,
-        protected readonly CSVWriterInterface $writer
+        protected readonly array          $args,
+        protected readonly CSVFileService $fileService
     )
     {
 

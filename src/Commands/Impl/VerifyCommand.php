@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\SignatureService;
 use Exception;
 
@@ -22,31 +23,32 @@ class VerifyCommand extends Command
         try {
             $signatureService = SignatureService::forVerification($this->args['publickey']);
 
-            if ($this->reader->open($this->args['file'])) {
+            $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
 
-                $header = $this->reader->getHeader();
-                $column = $this->args['column'];
-                if (!in_array($column, $header ?? [])) {
-                    echo "Column $column not found" . PHP_EOL;
-                    return;
-                }
-
-                if (!in_array($column . '_signature', $header ?? [])) {
-                    echo "Signature column $column\_signature not found" . PHP_EOL;
-                    return;
-                }
-
-                foreach ($this->reader->read() as $row) {
-                    $result = $signatureService->verify($row[$column], $row[$column . '_signature']);
-                    if ($result === false) {
-                        echo "Incorrect signature!" . PHP_EOL;
-                        return;
-                    }
-                }
-
-                echo "Correct signature!" . PHP_EOL;
+            $header = $input->getHeader();
+            $column = $this->args['column'];
+            if (!in_array($column, $header ?? [])) {
+                echo "Column $column not found" . PHP_EOL;
+                return;
             }
+
+            if (!in_array($column . '_signature', $header ?? [])) {
+                echo "Signature column $column\_signature not found" . PHP_EOL;
+                return;
+            }
+
+            foreach ($input->read() as $row) {
+                $result = $signatureService->verify($row[$column], $row[$column . '_signature']);
+                if ($result === false) {
+                    echo "Incorrect signature!" . PHP_EOL;
+                    return;
+                }
+            }
+
+            echo "Correct signature!" . PHP_EOL;
+
         } catch (Exception $e) {
+            $this->fileService->closeAll();
             echo $e->getMessage() . PHP_EOL;
         }
     }

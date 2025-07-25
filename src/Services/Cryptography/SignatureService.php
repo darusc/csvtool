@@ -2,8 +2,9 @@
 
 namespace Csvtool\Services\Cryptography;
 
+use Csvtool\Exceptions\FileNotFoundException;
+use Csvtool\Exceptions\FilePermissionException;
 use Csvtool\Exceptions\InvalidActionException;
-use Csvtool\Exceptions\InvalidFileException;
 use Csvtool\Exceptions\InvalidKeyException;
 use Exception;
 use http\Exception\InvalidArgumentException;
@@ -18,7 +19,8 @@ class SignatureService
     /**
      * @param string $privateKeyPath The path to a file containing the private key used for encryption
      * @return static
-     * @throws InvalidFileException
+     * @throws FileNotFoundException
+     * @throws FilePermissionException
      * @throws InvalidKeyException
      */
     public static function forSigning(string $privateKeyPath): static
@@ -30,8 +32,9 @@ class SignatureService
     /**
      * @param string $publicKeyPath The path to a file containing the public key used for verification
      * @return static
-     * @throws InvalidFileException
      * @throws InvalidKeyException
+     * @throws FileNotFoundException
+     * @throws FilePermissionException
      */
     public static function forVerification(string $publicKeyPath): static
     {
