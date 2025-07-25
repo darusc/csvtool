@@ -9,8 +9,9 @@ use SplFileObject;
 
 class CSVFile
 {
-    public const MODE_READ = 1;
-    public const MODE_WRITE = 2;
+    public const int MODE_READ = 0x01;
+    public const int MODE_WRITE = 0x02;
+    public const int MODE_TEMP = 0x03;
 
     private ?array $header = null;
 
@@ -19,12 +20,12 @@ class CSVFile
         private readonly int           $mode
     )
     {
-        if ($mode === CSVFile::MODE_READ) {
+        if ($mode & CSVFile::MODE_READ !== 0) {
             // Check if the file contains a header
             // If it contains numeric items it is a row entry and not the header
             // TODO: improve
             $this->header = $this->readRow();
-            foreach ($this->header as $item) {
+            foreach ($this->header ?? [] as $item) {
                 if (is_numeric($item)) {
                     $this->header = null;
                     break;
@@ -53,6 +54,21 @@ class CSVFile
         return $this->header !== null ? count($this->header) : 0;
     }
 
+    public function getFileSize(): int
+    {
+        return filesize($this->splFileObject->getRealPath());
+    }
+
+    public function rewind(): void
+    {
+        $this->splFileObject->rewind();
+    }
+
+    public function seek($line): void
+    {
+        $this->splFileObject->seek($line);
+    }
+
     /**
      * Read a single row and advance.
      * Returns null if end of file
@@ -60,7 +76,7 @@ class CSVFile
      */
     public function readRow(): ?array
     {
-        if ($this->mode !== CSVFile::MODE_READ) {
+        if ($this->mode & CSVFile::MODE_READ === 0) {
             throw new InvalidActionException("read (File was opened for writing)");
         }
 
@@ -114,7 +130,7 @@ class CSVFile
      */
     public function write(array $row): void
     {
-        if ($this->mode !== CSVFile::MODE_WRITE) {
+        if ($this->mode & CSVFile::MODE_WRITE === 0) {
             throw new InvalidActionException("write (File was opened for reading)");
         }
         $this->splFileObject->fputcsv($row);

@@ -11,6 +11,7 @@ use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
+use Csvtool\Commands\Impl\JoinFilesCommand;
 use Csvtool\Commands\Impl\MergeFilesCommand;
 use Csvtool\Commands\Impl\SignCommand;
 use Csvtool\Commands\Impl\VerifyCommand;
@@ -38,6 +39,7 @@ class Application
         "decrypt" => DecryptCommand::class,
         "sign" => SignCommand::class,
         "verify" => VerifyCommand::class,
+        "join" => JoinFilesCommand::class,
     ];
 
     /**

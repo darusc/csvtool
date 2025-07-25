@@ -41,6 +41,22 @@ class CSVFileService
         return $file;
     }
 
+    public function openTemporary(int $size): CSVFile
+    {
+        if(isset($this->files['temp'])) {
+            return $this->files['temp'];
+        }
+
+        $splObject = new SplFileObject("php://temp/maxmemory:$size", 'w+');
+        $splObject->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY);
+        $splObject->setCsvControl(",", "\"", "\\");
+
+        $file = new CSVFile($splObject, CSVFile::MODE_READ | CSVFile::MODE_WRITE);
+        $this->files['temp'] = $file;
+
+        return $file;
+    }
+
     public function close(string $filename): void
     {
         unset($this->files[$filename]);
