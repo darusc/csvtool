@@ -11,6 +11,7 @@ use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
+use Csvtool\Commands\Impl\MergeFilesCommand;
 use Csvtool\Commands\Impl\SignCommand;
 use Csvtool\Commands\Impl\VerifyCommand;
 use Csvtool\Exceptions\InvalidActionException;
@@ -32,6 +33,7 @@ class Application
         "rmcol" => ColumnRemovalCommand::class,
         "trunc" => ColumnTruncateCommand::class,
         "refdate" => DateReformatCommand::class,
+        "merge" => MergeFilesCommand::class,
         "encrypt" => EncryptCommand::class,
         "decrypt" => DecryptCommand::class,
         "sign" => SignCommand::class,

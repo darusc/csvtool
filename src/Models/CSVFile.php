@@ -48,6 +48,11 @@ class CSVFile
         return $this->header !== null;
     }
 
+    public function getColumnCount(): int
+    {
+        return $this->header !== null ? count($this->header) : 0;
+    }
+
     /**
      * Read a single row and advance.
      * Returns null if end of file
