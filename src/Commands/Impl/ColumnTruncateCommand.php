@@ -5,6 +5,7 @@ namespace Csvtool\Commands\Impl;
 use Csvtool\Commands\Command;
 use Csvtool\Models\CSVFile;
 use Exception;
+use InvalidArgumentException;
 
 class ColumnTruncateCommand extends Command
 {
@@ -14,7 +15,7 @@ class ColumnTruncateCommand extends Command
         return [
             'name' => 'truncate',
             'description' => 'Truncate string column values to given length',
-            'args' => ['file', 'length', 'outfile', '--ellipsis']
+            'args' => ['file', 'column', 'length', 'outfile', '--ellipsis']
         ];
     }
 
@@ -30,31 +31,39 @@ class ColumnTruncateCommand extends Command
 
             $length = $this->args['length'];
             if (!ctype_digit($length)) {
-                echo 'Argument "length" must be an integer' . PHP_EOL;
-                return;
+                throw new InvalidArgumentException('Argument "length" must be an integer');
+            }
+
+            $column = $this->args['column'];
+            if (!in_array($column, $input->getHeader())) {
+                throw new InvalidArgumentException("Column '$column' not found in file.");
             }
 
             foreach ($input->read() as $row) {
                 $output->write(
-                    array_map(function ($value) use ($length) {
+                    array_map(function ($key) use ($row, $column, $length) {
+                        if($key !== $column) {
+                            return $row[$key];
+                        }
+
                         // Truncate string values to given length and ignore the rest
                         // and add ... if option was specified
-                        if (is_string($value) && !is_numeric($value)) {
+                        if (is_string($row[$key]) && !is_numeric($row[$key])) {
                             if (array_key_exists('ellipsis', $this->args)) {
-                                return substr($value, 0, $length) . '..';
+                                return substr($row[$key], 0, $length) . '..';
                             } else {
-                                return substr($value, 0, $length);
+                                return substr($row[$key], 0, $length);
                             }
                         } else {
-                            return $value;
+                            return $row[$key];
                         }
-                    }, $row)
+                    }, array_keys($row))
                 );
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }

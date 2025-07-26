@@ -3,10 +3,14 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Exceptions\FileNotFoundException;
+use Csvtool\Exceptions\FilePermissionException;
+use Csvtool\Exceptions\InvalidFileOperation;
 use Csvtool\Exceptions\MetadataNotMatch;
 use Csvtool\Models\CSVFile;
 use Csvtool\Services\QuerySelectService;
 use Exception;
+use InvalidArgumentException;
 
 class SelectCommand extends Command
 {
@@ -20,6 +24,9 @@ class SelectCommand extends Command
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     public function run(): void
     {
         try {
@@ -32,23 +39,23 @@ class SelectCommand extends Command
             // Check if the required columns exist in the csv file
             foreach ($columns as $column) {
                 if(!in_array($column, $header ?? [])) {
-                    throw new MetadataNotMatch("Column $column not found");
+                    throw new InvalidArgumentException("Column $column not found");
                 }
             }
 
             $qss = new QuerySelectService($columns);
-            $root = $qss->parse($this->args['query']);
+            $root = $qss->parse($this->args['query'] ?? "");
 
             $output->setHeader($columns);
             foreach ($input->read() as $row) {
-                if($root->evaluate($row)) {
+                if($root !== null && $root->evaluate($row)) {
                     $output->write($qss->select($row));
                 }
             }
 
         } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $exception->getMessage();
+            throw $exception;
         }
     }
 }

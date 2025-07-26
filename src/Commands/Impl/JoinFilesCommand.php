@@ -76,9 +76,9 @@ class JoinFilesCommand extends Command
                 }
             }
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $e->getMessage();
+            throw $exception;
         }
     }
 }

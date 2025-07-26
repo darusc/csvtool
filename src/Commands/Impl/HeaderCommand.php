@@ -36,9 +36,9 @@ final class HeaderCommand extends Command
                 $output->write($row);
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage();
+            throw $exception;
         }
     }
 }

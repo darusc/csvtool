@@ -31,9 +31,9 @@ class IndexCommand extends Command
                 $output->write([$id++, ...$row]);
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage();
+            throw $exception;
         }
     }
 }

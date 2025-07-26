@@ -2,9 +2,9 @@
 
 namespace Csvtool\Services\Cryptography;
 
+use Csvtool\Exceptions\CryptographyException;
 use Csvtool\Exceptions\FileNotFoundException;
 use Csvtool\Exceptions\FilePermissionException;
-use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\InvalidKeyException;
 use Exception;
 use http\Exception\InvalidArgumentException;
@@ -52,13 +52,13 @@ class SignatureService
     /**
      * @param string $data Data to sign
      * @return string The resulted Base64 encoded signature
-     * @throws InvalidActionException
+     * @throws CryptographyException
      * @throws Exception
      */
     public function sign(string $data): string
     {
         if ($this->privateKey === null) {
-            throw new InvalidActionException("signing");
+            throw new CryptographyException("Signing error", openssl_error_string());
         }
 
         $ok = openssl_sign($data, $signature, $this->privateKey, OPENSSL_ALGO_SHA256);
@@ -73,13 +73,13 @@ class SignatureService
      * @param string $data
      * @param string $signature Base64 encoded signature to verify
      * @return bool
-     * @throws InvalidActionException
+     * @throws CryptographyException
      * @throws Exception
      */
     public function verify(string $data, string $signature): bool
     {
         if ($this->publicKey === null) {
-            throw new InvalidActionException("decrypting");
+            throw new CryptographyException("Verification error", openssl_error_string());
         }
 
         $decoded = base64_decode($signature);

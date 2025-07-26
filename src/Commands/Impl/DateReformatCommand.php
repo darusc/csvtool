@@ -6,8 +6,8 @@ use Carbon\Carbon;
 use Csvtool\Commands\Command;
 use Csvtool\Models\CSVFile;
 use Csvtool\Validators\DateValidator;
-use DateTime;
 use Exception;
+use InvalidArgumentException;
 
 class DateReformatCommand extends Command
 {
@@ -17,7 +17,7 @@ class DateReformatCommand extends Command
         return [
             'name' => 'refdate',
             'description' => 'Reformat datetime column values using given format',
-            'args' => ['file', 'format', 'outfile']
+            'args' => ['file', 'column', 'format', 'outfile']
         ];
     }
 
@@ -33,26 +33,30 @@ class DateReformatCommand extends Command
 
             $format = $this->args['format'];
             if (!DateValidator::isValidFormat($format)) {
-                echo "Specified format '$format' is not a valid date format." . PHP_EOL;
-                return;
+                throw new InvalidArgumentException("Specified format '$format' is not a valid date format.");
+            }
+
+            $column = $this->args['column'];
+            if (!in_array($column, $input->getHeader())) {
+                throw new InvalidArgumentException("Column '$column' not found in file.");
             }
 
             foreach ($input->read() as $row) {
                 $output->write(
-                    array_map(function ($value) use ($format) {
+                    array_map(function ($key) use ($format, $column, $row) {
                         // If the current value is a valid datetime reformat it with the new specified format
-                        if (DateValidator::isValidDateTime($value)) {
-                            return Carbon::parse($value)->format($format);
+                        if ($key === $column && DateValidator::isValidDateTime($row[$key])) {
+                            return Carbon::parse($row[$key])->format($format);
                         } else {
-                            return $value;
+                            return $row[$key];
                         }
-                    }, $row)
+                    }, array_keys($row))
                 );
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }
