@@ -9,6 +9,7 @@ use Csvtool\Commands\Impl\DateReformatCommand;
 use Csvtool\Commands\Impl\DecryptCommand;
 use Csvtool\Commands\Impl\EncryptCommand;
 use Csvtool\Commands\Impl\HeaderCommand;
+use Csvtool\Commands\Impl\HelpCommand;
 use Csvtool\Commands\Impl\IndexCommand;
 use Csvtool\Commands\Impl\ColumnTruncateCommand;
 use Csvtool\Commands\Impl\JoinFilesCommand;
@@ -30,6 +31,7 @@ class Application
      * Maps each action to the corresponding command implementation
      */
     public static array $actionMap = [
+        "help" => HelpCommand::class,
         "header" => HeaderCommand::class,
         "index" => IndexCommand::class,
         "reorder" => ColumnReorderCommand::class,
