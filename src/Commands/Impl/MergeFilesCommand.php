@@ -35,14 +35,14 @@ class MergeFilesCommand extends Command
 
                 // Stop if a file has a different number of columns than the rest
                 if($columns !== -1 && $cols !== $columns) {
-                    throw new MetadataNotMatch("File $fileName has different number of columns.");
+                    throw new Exception("File $fileName has different number of columns.");
                 } else {
                     $columns = $cols; // update column count initial value
                 }
 
                 // Stop if a file has a different header
                 if($header !== [] && $header !== $h) {
-                    throw new MetadataNotMatch("File $fileName has different header.");
+                    throw new Exception("File $fileName has different header.");
                 } else {
                     $header = $h; // update initial header value
                 }
@@ -63,9 +63,9 @@ class MergeFilesCommand extends Command
                 }
             }
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $e->getMessage();
+            throw $exception;
         }
     }
 }

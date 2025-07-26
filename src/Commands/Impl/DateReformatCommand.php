@@ -8,6 +8,7 @@ use Csvtool\Models\CSVFile;
 use Csvtool\Validators\DateValidator;
 use DateTime;
 use Exception;
+use InvalidArgumentException;
 
 class DateReformatCommand extends Command
 {
@@ -33,8 +34,7 @@ class DateReformatCommand extends Command
 
             $format = $this->args['format'];
             if (!DateValidator::isValidFormat($format)) {
-                echo "Specified format '$format' is not a valid date format." . PHP_EOL;
-                return;
+                throw new InvalidArgumentException("Specified format '$format' is not a valid date format.");
             }
 
             foreach ($input->read() as $row) {
@@ -50,9 +50,9 @@ class DateReformatCommand extends Command
                 );
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }

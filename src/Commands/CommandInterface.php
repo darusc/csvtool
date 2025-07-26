@@ -2,6 +2,8 @@
 
 namespace Csvtool\Commands;
 
+use Exception;
+
 interface CommandInterface
 {
     /**
@@ -15,5 +17,8 @@ interface CommandInterface
      */
     public static function getDefinition(): array;
 
+    /**
+     * @throws Exception
+     */
     public function run();
 }

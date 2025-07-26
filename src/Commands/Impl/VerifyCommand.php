@@ -6,6 +6,7 @@ use Csvtool\Commands\Command;
 use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\SignatureService;
 use Exception;
+use http\Exception\InvalidArgumentException;
 
 class VerifyCommand extends Command
 {
@@ -28,13 +29,11 @@ class VerifyCommand extends Command
             $header = $input->getHeader();
             $column = $this->args['column'];
             if (!in_array($column, $header ?? [])) {
-                echo "Column $column not found" . PHP_EOL;
-                return;
+                throw new InvalidArgumentException("Column $column not found");
             }
 
             if (!in_array($column . '_signature', $header ?? [])) {
-                echo "Signature column $column\_signature not found" . PHP_EOL;
-                return;
+                throw new InvalidArgumentException("Signature column $column\_signature not found");
             }
 
             foreach ($input->read() as $row) {
@@ -47,9 +46,9 @@ class VerifyCommand extends Command
 
             echo "Correct signature!" . PHP_EOL;
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $e->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }

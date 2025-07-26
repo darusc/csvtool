@@ -25,8 +25,7 @@ class ColumnRemovalCommand extends Command
             $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
             if (!$input->hasHeader()) {
-                echo 'Input file ' . $this->args['file'] . " doesn't have a header" . PHP_EOL;
-                return;
+                throw new Exception('Input file ' . $this->args['file'] . " doesn't have a header");
             }
 
             $header = $input->getHeader();
@@ -50,9 +49,9 @@ class ColumnRemovalCommand extends Command
                 );
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage();
+            throw $exception;
         }
     }
 }

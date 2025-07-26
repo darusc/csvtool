@@ -2,9 +2,9 @@
 
 namespace Csvtool\Services\Cryptography;
 
+use Csvtool\Exceptions\CryptographyException;
 use Csvtool\Exceptions\FileNotFoundException;
 use Csvtool\Exceptions\FilePermissionException;
-use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\InvalidKeyException;
 use OpenSSLAsymmetricKey;
 
@@ -50,12 +50,12 @@ class CryptographyService
     /**
      * @param string $data Data to encrypt
      * @return string The encrypted data in base64 format
-     * @throws InvalidActionException
+     * @throws CryptographyException
      */
     public function encrypt(string $data): string
     {
         if($this->publicKey === null) {
-            throw new InvalidActionException("encrypting");
+            throw new CryptographyException("Encryption error", openssl_error_string());
         }
 
         openssl_public_encrypt($data, $encrypted, $this->publicKey);
@@ -65,12 +65,12 @@ class CryptographyService
     /**
      * @param string $data Data to decrypt
      * @return string The encrypted data in base64 decoded
-     * @throws InvalidActionException
+     * @throws CryptographyException
      */
     public function decrypt(string $data): string
     {
         if($this->privateKey === null) {
-            throw new InvalidActionException("decrypting");
+            throw new CryptographyException("Decryption error", openssl_error_string());
         }
 
         openssl_private_decrypt(base64_decode($data), $decrypted, $this->privateKey);

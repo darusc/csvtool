@@ -25,8 +25,7 @@ class ColumnReorderCommand extends Command
             $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
             if(!$input->hasHeader()) {
-                echo 'Input file ' . $this->args['file'] . " doesn't have a header" . PHP_EOL;
-                return;
+                throw new Exception('Input file ' . $this->args['file'] . " doesn't have a header");
             }
 
             $oldHeader = $input->getHeader();
@@ -59,9 +58,9 @@ class ColumnReorderCommand extends Command
                 );
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }

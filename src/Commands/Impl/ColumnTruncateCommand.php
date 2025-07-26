@@ -5,6 +5,7 @@ namespace Csvtool\Commands\Impl;
 use Csvtool\Commands\Command;
 use Csvtool\Models\CSVFile;
 use Exception;
+use InvalidArgumentException;
 
 class ColumnTruncateCommand extends Command
 {
@@ -30,8 +31,7 @@ class ColumnTruncateCommand extends Command
 
             $length = $this->args['length'];
             if (!ctype_digit($length)) {
-                echo 'Argument "length" must be an integer' . PHP_EOL;
-                return;
+                throw new InvalidArgumentException('Argument "length" must be an integer');
             }
 
             foreach ($input->read() as $row) {
@@ -52,9 +52,9 @@ class ColumnTruncateCommand extends Command
                 );
             }
 
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $ex->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }

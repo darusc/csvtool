@@ -2,9 +2,8 @@
 
 namespace Csvtool\Models;
 
-use Csvtool\Exceptions\InvalidActionException;
+use Csvtool\Exceptions\InvalidFileOperation;
 use Generator;
-use InvalidArgumentException;
 use SplFileObject;
 
 class CSVFile
@@ -72,12 +71,12 @@ class CSVFile
     /**
      * Read a single row and advance.
      * Returns null if end of file
-     * @throws InvalidActionException
+     * @throws InvalidFileOperation
      */
     public function readRow(): ?array
     {
         if ($this->mode & CSVFile::MODE_READ === 0) {
-            throw new InvalidActionException("read (File was opened for writing)");
+            throw new InvalidFileOperation($this->splFileObject->getPath(), "read",  "(File was opened for writing)");
         }
 
         $row = $this->splFileObject->current();
@@ -90,7 +89,7 @@ class CSVFile
     }
 
     /**
-     * @throws InvalidActionException
+     * @throws InvalidFileOperation
      */
     public function read(): Generator
     {
@@ -117,7 +116,7 @@ class CSVFile
     }
 
     /**
-     * @throws InvalidActionException
+     * @throws InvalidFileOperation
      */
     public function setHeader(array $header): void
     {
@@ -126,12 +125,12 @@ class CSVFile
     }
 
     /**
-     * @throws InvalidActionException
+     * @throws InvalidFileOperation
      */
     public function write(array $row): void
     {
         if ($this->mode & CSVFile::MODE_WRITE === 0) {
-            throw new InvalidActionException("write (File was opened for reading)");
+            throw new InvalidFileOperation($this->splFileObject->getPath(), "write",  "(File was opened for reading)");
         }
         $this->splFileObject->fputcsv($row);
     }

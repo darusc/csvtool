@@ -3,9 +3,11 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\CryptographyService;
 use Csvtool\Services\Cryptography\EncryptionService;
 use Exception;
+use InvalidArgumentException;
 
 class EncryptCommand extends Command
 {
@@ -26,10 +28,9 @@ class EncryptCommand extends Command
             $input = $this->fileService->open($this->args['file'], CSVFile::MODE_READ);
             $output = $this->fileService->open($this->args['outfile'], CSVFile::MODE_WRITE);
 
-            $header = $this->reader->getHeader();
+            $header = $input->getHeader();
             if (!in_array($this->args['column'], $header ?? [])) {
-                echo "Column {$this->args['column']} not found" . PHP_EOL;
-                return;
+                throw new InvalidArgumentException("Column {$this->args['column']} not found");
             }
 
             $output->setHeader($input->getHeader());
@@ -46,9 +47,9 @@ class EncryptCommand extends Command
                 );
             }
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $this->fileService->closeAll();
-            echo $e->getMessage() . PHP_EOL;
+            throw $exception;
         }
     }
 }

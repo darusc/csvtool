@@ -21,6 +21,7 @@ use Csvtool\Exceptions\MissingArgumentException;
 use Csvtool\Services\CSVFileService;
 use Csvtool\Services\FIleWriterService;
 use Csvtool\Services\StreamReaderService;
+use Exception;
 use InvalidArgumentException;
 
 class Application
@@ -120,6 +121,7 @@ class Application
 
     /**
      * Starts executing the command
+     * @throws Exception
      */
     public function run(): void
     {
