@@ -14,5 +14,5 @@ try {
 } catch (MissingArgumentException $e) {
     echo $e->getMessage() . " See help for more details" . PHP_EOL;
 } catch (Exception $e) {
-    echo "in main: " . $e->getMessage() . PHP_EOL;
+    echo $e->getMessage() . PHP_EOL;
 }
