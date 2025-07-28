@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Exceptions\FileNotFoundException;
 use Csvtool\Exceptions\FilePermissionException;
 use Csvtool\Models\CSVFile;
@@ -10,13 +11,13 @@ use Exception;
 
 final class HeaderCommand extends Command
 {
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'header',
-            'description' => 'Prepend CSV file with a header row',
-            'args' => ['file', 'header', 'outfile']
-        ];
+        return new CommandDefinition(
+            'header',
+            'Prepend CSV file with a header row',
+            ['--file:', '--header:', '--outfile']
+        );
     }
 
     public function run(): void

@@ -3,19 +3,20 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Exception;
 use InvalidArgumentException;
 
 class JoinFilesCommand extends Command
 {
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'join',
-            'description' => 'Join 2 files on column name',
-            'args' => ['inputs', 'on', 'output']
-        ];
+        return new CommandDefinition(
+            'join',
+            'Join 2 files on column name',
+            ['--files:', '--on:', '--outfile']
+        );
     }
 
     public function run(): void

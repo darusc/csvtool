@@ -3,19 +3,20 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Exception;
 
 class ColumnRemovalCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'rmcol',
-            'description' => 'Remove column by name or index',
-            'args' => ['file', 'outfile', '--index', '--name']
-        ];
+        return new CommandDefinition(
+            'rmcol',
+            'Remove the columns that are not in the given sequence.',
+            ['--file:', '--outfile', '--index:', '--name:']
+        );
     }
 
     public function run(): void

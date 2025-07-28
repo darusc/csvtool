@@ -3,18 +3,19 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Exception;
 
 class IndexCommand extends Command
 {
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'index',
-            'description' => 'Add index column to CSV file',
-            'args' => ['file', 'outfile']
-        ];
+        return new CommandDefinition(
+            'index',
+            'Add index column to CSV file',
+            ['--file:', '--outfile']
+        );
     }
 
     public function run(): void
