@@ -1,6 +1,8 @@
+#!/usr/local/bin/php
+
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Csvtool\ArgumentParser;
 use Csvtool\Commands\CommandDispatcher;
@@ -10,7 +12,7 @@ use Csvtool\Exceptions\MissingArgumentException;
 try {
     // Command name is the first argument given to script
     $commandName = $argv[1];
-    if(!CommandDispatcher::commandExists($commandName)) {
+    if (!CommandDispatcher::commandExists($commandName)) {
         throw new InvalidActionException($commandName);
     }
 
@@ -20,8 +22,11 @@ try {
 
 } catch (InvalidActionException $e) {
     echo "Action {$e->getAction()} is not supported. See help for more details" . PHP_EOL;
+    exit(1);
 } catch (MissingArgumentException $e) {
     echo $e->getMessage() . " See help for more details" . PHP_EOL;
+    exit(1);
 } catch (Exception $e) {
     echo $e->getMessage() . PHP_EOL;
+    exit(1);
 }

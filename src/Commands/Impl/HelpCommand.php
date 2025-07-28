@@ -20,12 +20,12 @@ class HelpCommand extends Command
 
     public function run(): void
     {
-        echo "Usage: php csv.php <action> <args...> [options...]" . PHP_EOL . PHP_EOL;
+        echo "Usage: csvtool <action> <args...> [options...]" . PHP_EOL . PHP_EOL;
         foreach (Application::$actionMap as $action) {
             $command = $action::getDefinition();
 
             echo $command['name'] . ' - ' . $command['description'] . PHP_EOL;
-            echo '    php csv.php ' . $command['name'];
+            echo '    csvtool ' . $command['name'];
             foreach ($command['args'] as $arg) {
                 if (str_starts_with($arg, '--')) {
                     print ' [' . $arg . ']';
