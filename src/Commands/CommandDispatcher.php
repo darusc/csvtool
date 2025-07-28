@@ -59,4 +59,9 @@ final class CommandDispatcher
     {
         return array_key_exists($name, self::$commandMap);
     }
+
+    public static function getCommandMap(): array
+    {
+        return self::$commandMap;
+    }
 }
