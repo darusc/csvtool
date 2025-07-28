@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\CryptographyService;
 use Csvtool\Services\Cryptography\EncryptionService;
@@ -11,13 +12,13 @@ use InvalidArgumentException;
 
 class EncryptCommand extends Command
 {
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'encrypt',
-            'description' => 'Encrypt column in CSV file',
-            'args' => ['file', 'column', 'publickey', 'outfile']
-        ];
+        return new CommandDefinition(
+            'encrypt',
+            'Encrypt column in CSV file',
+            ['--file:', '--column:', '--publickey:', '--outfile']
+        );
     }
 
     public function run(): void

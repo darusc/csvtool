@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Exception;
 use InvalidArgumentException;
@@ -10,13 +11,13 @@ use InvalidArgumentException;
 class ColumnTruncateCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'truncate',
-            'description' => 'Truncate string column values to given length',
-            'args' => ['file', 'column', 'length', 'outfile', '--ellipsis']
-        ];
+        return new CommandDefinition(
+            'truncate',
+            'Truncate string column values to given length',
+            ['--file:', '--column:', '--length:', '--outfile', '--ellipsis']
+        );
     }
 
     public function run(): void

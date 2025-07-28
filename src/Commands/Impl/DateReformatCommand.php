@@ -4,6 +4,7 @@ namespace Csvtool\Commands\Impl;
 
 use Carbon\Carbon;
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Csvtool\Validators\DateValidator;
 use Exception;
@@ -12,13 +13,13 @@ use InvalidArgumentException;
 class DateReformatCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'refdate',
-            'description' => 'Reformat datetime column values using given format',
-            'args' => ['file', 'column', 'format', 'outfile']
-        ];
+        return new CommandDefinition(
+            'refdate',
+            'Reformat datetime column values using given format',
+            ['--file:', '--column:', '--format:', '--outfile']
+        );
     }
 
     public function run(): void

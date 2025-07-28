@@ -3,19 +3,20 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Exception;
 
 class ColumnReorderCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'reorder',
-            'description' => 'Reorder columns in CSV file based on given column sequence. Flag --removenotinseq removes columns that are not in the given sequence.',
-            'args' => ['file', 'sequence', 'outfile', '--removenotinseq']
-        ];
+        return new CommandDefinition(
+            'reorder',
+            'Reorder columns in CSV file based on given column sequence. Flag --removenotinseq removes columns that are not in the given sequence.',
+            ['--file:', '--sequence:', '--outfile', '--removenotinseq']
+        );
     }
 
     public function run(): void

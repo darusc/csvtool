@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Exceptions\MetadataNotMatch;
 use Csvtool\Models\CSVFile;
 use Exception;
@@ -10,13 +11,13 @@ use Exception;
 class MergeFilesCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'merge',
-            'description' => 'Merge input files in the output file',
-            'args' => ['inputs', 'output', '--index']
-        ];
+        return new CommandDefinition(
+            'merge',
+            'Merge input files in the output file',
+            ['--files:', '--outfile', '--index']
+        );
     }
 
     public function run(): void

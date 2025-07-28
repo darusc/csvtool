@@ -3,6 +3,7 @@
 namespace Csvtool\Commands\Impl;
 
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 use Csvtool\Models\CSVFile;
 use Csvtool\Services\Cryptography\SignatureService;
 use Exception;
@@ -11,13 +12,13 @@ use InvalidArgumentException;
 class SignCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'sign',
-            'description' => 'Sign given column in CSV file',
-            'args' => ['file', 'column', 'privatekey', 'outfile']
-        ];
+        return new CommandDefinition(
+            'sign',
+            'Sign given column in CSV file',
+            ['--file:', '--column:', '--privatekey:', '--outfile']
+        );
     }
 
     public function run(): void

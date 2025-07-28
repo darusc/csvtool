@@ -2,13 +2,22 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use \Csvtool\Application;
+use Csvtool\ArgumentParser;
+use Csvtool\Commands\CommandDispatcher;
 use Csvtool\Exceptions\InvalidActionException;
 use Csvtool\Exceptions\MissingArgumentException;
 
 try {
-    $app = Application::create($argc, $argv);
-    $app->run();
+    // Command name is the first argument given to script
+    $commandName = $argv[1];
+    if(!CommandDispatcher::commandExists($commandName)) {
+        throw new InvalidActionException($commandName);
+    }
+
+    // Parse the given options and dispatch the command
+    ArgumentParser::parse(array_slice($argv, 2), CommandDispatcher::getCommandDefinition($commandName)->args);
+    CommandDispatcher::dispatch($commandName, ArgumentParser::getOptions());
+
 } catch (InvalidActionException $e) {
     echo "Action {$e->getAction()} is not supported. See help for more details" . PHP_EOL;
 } catch (MissingArgumentException $e) {

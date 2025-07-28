@@ -4,17 +4,18 @@ namespace Csvtool\Commands\Impl;
 
 use Csvtool\Application;
 use Csvtool\Commands\Command;
+use Csvtool\Commands\CommandDefinition;
 
 class HelpCommand extends Command
 {
 
-    public static function getDefinition(): array
+    public static function getDefinition(): CommandDefinition
     {
-        return [
-            'name' => 'help',
-            'description' => 'Show this help message',
-            'args' => []
-        ];
+        return new CommandDefinition(
+            'help',
+            'Show this help message',
+            []
+        );
     }
 
     public function run(): void
