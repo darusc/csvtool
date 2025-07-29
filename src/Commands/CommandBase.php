@@ -39,6 +39,12 @@ abstract class CommandBase extends Command
             if ($option->isValueRequired() && $input->getOption($name) === null) {
                 throw new MissingArgumentException($name);
             }
+
+            // Don't add in the $extractedOptions array options with no value that were not given
+            if(!$option->acceptValue() && $input->getOption($name) === false) {
+                continue;
+            }
+
             $extractedOptions[$name] = $input->getOption($name);
         }
 
