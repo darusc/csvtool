@@ -1,29 +1,38 @@
 <?php
 
-namespace Csvtool\Commands\Impl;
+namespace Csvtool\Commands;
 
-use Csvtool\Commands\Command;
-use Csvtool\Commands\CommandDefinition;
-use Csvtool\Exceptions\MetadataNotMatch;
 use Csvtool\Models\CSVFile;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-class MergeFilesCommand extends Command
+#[AsCommand(
+    name: 'app:csv:merge',
+    description: 'Merge CSV files',
+)]
+class MergeFilesCommand extends CommandBase
 {
 
-    public static function getDefinition(): CommandDefinition
+    protected function configure(): void
     {
-        return new CommandDefinition(
-            'merge',
-            'Merge input files in the output file',
-            ['--files:', '--outfile', '--index']
-        );
+        $this
+            ->addOption('files', 'f', InputOption::VALUE_REQUIRED, 'The 2 input files')
+            ->addOption('index', 'i', InputOption::VALUE_NONE, 'Update index (id) column after merging')
+            ->addOption('output', 'o', InputOption::VALUE_OPTIONAL, 'Output file', 'output.csv');
     }
 
-    public function run(): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new SymfonyStyle($input, $output);
         try {
-            $files = explode(',', $this->args["inputs"]);
+            $options = $this->extractOptions($input);
+
+            $files = explode(',', $options["inputs"]);
             $inputs = [];
             // Open all the input files and check merge preconditions (same number of columns and matching headers)
             $header = [];
@@ -35,30 +44,30 @@ class MergeFilesCommand extends Command
                 $h = $file->getHeader();
 
                 // Stop if a file has a different number of columns than the rest
-                if($columns !== -1 && $cols !== $columns) {
+                if ($columns !== -1 && $cols !== $columns) {
                     throw new Exception("File $fileName has different number of columns.");
                 } else {
                     $columns = $cols; // update column count initial value
                 }
 
                 // Stop if a file has a different header
-                if($header !== [] && $header !== $h) {
+                if ($header !== [] && $header !== $h) {
                     throw new Exception("File $fileName has different header.");
                 } else {
                     $header = $h; // update initial header value
                 }
             }
 
-            $output = $this->fileService->open($this->args['output'], CSVFile::MODE_WRITE);
+            $output = $this->fileService->open($options['output'], CSVFile::MODE_WRITE);
             $output->setHeader($header);
 
             // Merge all the input files by appending all the rows at the bottom of the output file
             $id = 1;
             foreach ($inputs as $input) {
-                foreach($input->read() as $row) {
+                foreach ($input->read() as $row) {
                     // Update the index column if the option was given and if it exists in the csv file
-                    if(array_key_exists('index', $this->args) && array_key_exists($this->args['index'], $row)) {
-                        $row[$this->args['index']] = $id++;
+                    if (array_key_exists('index', $options) && array_key_exists($options['index'], $row)) {
+                        $row[$options['index']] = $id++;
                     }
                     $output->write($row);
                 }
@@ -66,7 +75,10 @@ class MergeFilesCommand extends Command
 
         } catch (Exception $exception) {
             $this->fileService->closeAll();
-            throw $exception;
+            $io->error($exception->getMessage());
+
+            return Command::FAILURE;
         }
+        return Command::SUCCESS;
     }
 }
