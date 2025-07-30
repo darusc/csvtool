@@ -30,4 +30,12 @@ class TaskController extends AbstractController
         sleep($timeout);
         return new RedirectResponse('/redirected');
     }
+
+    #[Route('attributes', name: 'task_attributes', methods: ['GET'])]
+    public function attributes(Request $request): Response
+    {
+        // Dump attributes to see attribute added by the request listener
+        var_dump($request->attributes->all());
+        return new Response();
+    }
 }
